@@ -18,10 +18,12 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import com.qa.test.demositepages.LoginPage;
 import com.qa.test.demositepages.RegisterPage;
+import com.qa.test.ftsepages.FallersPage;
+import com.qa.test.ftsepages.HomePage;
+import com.qa.test.ftsepages.RisersPage;
 import com.qa.test.shoppingsitepages.AddressPage;
 import com.qa.test.shoppingsitepages.BankWireConfirmationPage;
 import com.qa.test.shoppingsitepages.CartPage;
-import com.qa.test.shoppingsitepages.HomePage;
 import com.qa.test.shoppingsitepages.OrderConfirmationPage;
 import com.qa.test.shoppingsitepages.PaymentPage;
 import com.qa.test.shoppingsitepages.ProductPage;
@@ -130,7 +132,8 @@ public class seleniumtest {
 		final String EMAIL = "niccage@conair.com";
 		final String PASS = "hello1";
 
-		HomePage homePage = PageFactory.initElements(driver, HomePage.class);
+		com.qa.test.shoppingsitepages.HomePage homePage = PageFactory.initElements(driver,
+				com.qa.test.shoppingsitepages.HomePage.class);
 		ResultPage resultPage = PageFactory.initElements(driver, ResultPage.class);
 		ProductPage productPage = PageFactory.initElements(driver, ProductPage.class);
 		CartPage cartPage = PageFactory.initElements(driver, CartPage.class);
@@ -168,6 +171,41 @@ public class seleniumtest {
 		}
 
 		System.out.println();
+
+	}
+
+	@Test
+	public void ftseTest() {
+
+		driver.get("https://www.hl.co.uk/shares/stock-market-summary/ftse-100 ");
+		this.test = report.createTest("testFTSE");
+
+		String largestRiser = "AVEVA Group plc"; // correct as of 09/06/2020
+		String largestFaller = "Meggitt"; // correct as of 09/06/2020
+
+		HomePage homePage = PageFactory.initElements(driver, HomePage.class);
+		RisersPage risersPage = PageFactory.initElements(driver, RisersPage.class);
+		FallersPage fallersPage = PageFactory.initElements(driver, FallersPage.class);
+
+		homePage.closeCookies();
+		homePage.viewRisers();
+		if (risersPage.getLargestRiserName().equals(largestRiser)) {
+			test.pass("Matches largest riser " + largestRiser + "! (correct as of 09/06/2020)");
+		} else {
+			test.fail("Doesn't match largest riser " + largestRiser
+					+ " (correct as of 09/06/2020)\nValidation answer could be incorrect at current time, please check.");
+			fail();
+		}
+
+		risersPage.returnHome();
+		homePage.viewFallers();
+		if (fallersPage.getLargestFallerName().equals(largestFaller)) {
+			test.pass("Matches largest faller " + largestFaller + "! (correct as of 09/06/2020)");
+		} else {
+			test.fail("Doesn't match largest faller " + largestFaller
+					+ " (correct as of 09/06/2020)\nValidation answer could be incorrect at current time, please check.");
+			fail();
+		}
 
 	}
 
