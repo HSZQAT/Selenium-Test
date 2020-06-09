@@ -18,8 +18,16 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import com.qa.test.demositepages.LoginPage;
 import com.qa.test.demositepages.RegisterPage;
+import com.qa.test.shoppingsitepages.AddressPage;
+import com.qa.test.shoppingsitepages.BankWireConfirmationPage;
+import com.qa.test.shoppingsitepages.CartPage;
 import com.qa.test.shoppingsitepages.HomePage;
+import com.qa.test.shoppingsitepages.OrderConfirmationPage;
+import com.qa.test.shoppingsitepages.PaymentPage;
+import com.qa.test.shoppingsitepages.ProductPage;
 import com.qa.test.shoppingsitepages.ResultPage;
+import com.qa.test.shoppingsitepages.ShippingPage;
+import com.qa.test.shoppingsitepages.SignInPage;
 
 public class seleniumtest {
 
@@ -119,9 +127,20 @@ public class seleniumtest {
 		this.test = report.createTest("testShoppingSitePOM");
 
 		String clothing = new String("Dress");
+		final String EMAIL = "niccage@conair.com";
+		final String PASS = "hello1";
 
 		HomePage homePage = PageFactory.initElements(driver, HomePage.class);
 		ResultPage resultPage = PageFactory.initElements(driver, ResultPage.class);
+		ProductPage productPage = PageFactory.initElements(driver, ProductPage.class);
+		CartPage cartPage = PageFactory.initElements(driver, CartPage.class);
+		SignInPage signInPage = PageFactory.initElements(driver, SignInPage.class);
+		AddressPage addressPage = PageFactory.initElements(driver, AddressPage.class);
+		ShippingPage shippingPage = PageFactory.initElements(driver, ShippingPage.class);
+		PaymentPage paymentPage = PageFactory.initElements(driver, PaymentPage.class);
+		BankWireConfirmationPage bankWireConfirmationPage = PageFactory.initElements(driver,
+				BankWireConfirmationPage.class);
+		OrderConfirmationPage orderConfirmationPage = PageFactory.initElements(driver, OrderConfirmationPage.class);
 
 		homePage.search(clothing);
 //		assertTrue(resultPage.confirmSearch().contains(clothing));
@@ -129,6 +148,22 @@ public class seleniumtest {
 			test.pass("Correct search items appeared for " + clothing + "!");
 		} else {
 			test.fail("Incorrect search items for " + clothing + " appeared.");
+			fail();
+		}
+
+		resultPage.selectFirstResult();
+		productPage.addToCart();
+		productPage.proceedToCheckout();
+		cartPage.proceedToCheckout();
+		signInPage.signIn(EMAIL, PASS);
+		addressPage.acceptAddress();
+		shippingPage.acceptShipping();
+		paymentPage.payByBankWire();
+		bankWireConfirmationPage.confirmOrder();
+		if (orderConfirmationPage.getConfirmation().contentEquals("Your order on My Store is complete.")) {
+			test.pass("Order completed!");
+		} else {
+			test.fail("Order unsuccessful.");
 			fail();
 		}
 

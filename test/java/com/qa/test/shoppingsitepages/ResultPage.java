@@ -12,4 +12,9 @@ public class ResultPage {
 //		(new WebDriverWait(driver,10)).until(ExpectedCondition.visibilityOf());
 		return this.firstResultName.getText();
 	}
+
+	public void selectFirstResult() {
+		firstResultName.click();
+
+	}
 }
