@@ -11,9 +11,16 @@ public class HomePage {
 	@FindBy(xpath = "//*[@id=\"searchbox\"]/button")
 	WebElement searchButton;
 
+	@FindBy(xpath = "//*[@id=\"header\"]/div[2]/div/div/nav/div[1]/a")
+	WebElement signInButton;
+
 	public void search(String searchTerm) {
 		searchBar.sendKeys(searchTerm);
 		searchButton.click();
+	}
+
+	public void signIn() {
+		signInButton.click();
 	}
 
 }

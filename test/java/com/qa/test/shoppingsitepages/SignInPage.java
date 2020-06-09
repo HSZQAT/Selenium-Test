@@ -14,9 +14,20 @@ public class SignInPage {
 	@FindBy(xpath = "//*[@id=\"SubmitLogin\"]")
 	WebElement signInButton;
 
+	@FindBy(xpath = "//*[@id=\"email_create\"]")
+	WebElement newEmailInput;
+
+	@FindBy(xpath = "//*[@id=\"SubmitCreate\"]")
+	WebElement createAccountButton;
+
 	public void signIn(String email, String password) {
 		emailInput.sendKeys(email);
 		passwordInput.sendKeys(password);
 		signInButton.click();
+	}
+
+	public void createAccount(String email) {
+		newEmailInput.sendKeys(email);
+		createAccountButton.click();
 	}
 }
