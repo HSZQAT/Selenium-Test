@@ -5,7 +5,7 @@ import org.openqa.selenium.support.FindBy;
 
 public class RisersPage {
 
-	@FindBy(xpath = "//*[@id=\"ls-row-AVV-L\"]/td[2]")
+	@FindBy(xpath = "//*[@id=\"ls-row-LSE-L\"]/td[2]")
 	WebElement largestRiserName;
 
 	@FindBy(xpath = "//*[@id=\"tabletNav\"]/ul/li[1]/ul/li[1]/a")

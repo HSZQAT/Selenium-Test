@@ -1,7 +1,10 @@
 package com.qa.test.ftsepages;
 
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class HomePage {
 
@@ -14,8 +17,9 @@ public class HomePage {
 	@FindBy(xpath = "//*[@id=\"view-constituents\"]/ul/li[3]")
 	WebElement fallersTab;
 
-	public void closeCookies() {
-		closeCookiesButton.click();
+	public void closeCookies(WebDriver driver) {
+
+		(new WebDriverWait(driver, 3)).until(ExpectedConditions.elementToBeClickable(closeCookiesButton)).click();
 	}
 
 	public void viewRisers() {

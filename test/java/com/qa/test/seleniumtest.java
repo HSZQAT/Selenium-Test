@@ -2,6 +2,8 @@ package com.qa.test;
 
 import static org.junit.Assert.fail;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -9,13 +11,17 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.PageFactory;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
+import com.google.common.io.Files;
 import com.qa.test.demositepages.LoginPage;
 import com.qa.test.demositepages.RegisterPage;
 import com.qa.test.ftsepages.FallersPage;
@@ -47,7 +53,9 @@ public class seleniumtest {
 
 	@Before
 	public void init() {
-		driver = new ChromeDriver();
+		ChromeOptions opts = new ChromeOptions();
+		opts.setHeadless(true);
+		driver = new ChromeDriver(opts);
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 	}
@@ -98,7 +106,7 @@ public class seleniumtest {
 //	}
 
 	@Test
-	public void testDemoSitePOM() {
+	public void testDemoSitePOM() throws IOException {
 
 		driver.get("http://thedemosite.co.uk/addauser.php");
 		this.test = report.createTest("testDemoSitePOM");
@@ -113,20 +121,61 @@ public class seleniumtest {
 		registerPage.navigateToLogin();
 		loginPage.login(username, password);
 //		assertEquals("**Successful Login**", loginPage.getStatus());
+
+		TakesScreenshot scrShot = (TakesScreenshot) driver;
+		File srcFile = scrShot.getScreenshotAs(OutputType.FILE);
+		final String scrShotPath = "test-output/screenshots/demositetest.png";
+		File targetFile = new File(scrShotPath);
+		Files.copy(srcFile, targetFile);
+
 		if (loginPage.getStatus().equals("**Successful Login**")) {
-			test.pass("Login attempt successful!");
+			test.pass("Login attempt successful!").addScreenCaptureFromPath(scrShotPath);
 		} else {
-			test.fail("Login attempt unsuccessful.");
+			test.fail("Login attempt unsuccessful.").addScreenCaptureFromPath(scrShotPath);
 			fail();
 		}
 
 	}
 
 	@Test
-	public void testShoppingSite() {
+	public void testShoppingSiteSearch() throws IOException {
 
 		driver.get("http://automationpractice.com/index.php");
-		this.test = report.createTest("testShoppingSitePOM");
+		this.test = report.createTest("testShoppingSiteSearch");
+
+		String clothing = new String("Dress");
+
+		com.qa.test.shoppingsitepages.HomePage homePage = PageFactory.initElements(driver,
+				com.qa.test.shoppingsitepages.HomePage.class);
+		ResultPage resultPage = PageFactory.initElements(driver, ResultPage.class);
+
+		homePage.search(clothing);
+//		assertTrue(resultPage.confirmSearch().contains(clothing));
+
+		TakesScreenshot scrShot = (TakesScreenshot) driver;
+		File srcFile = scrShot.getScreenshotAs(OutputType.FILE);
+		final String scrShotPath = "test-output/screenshots/shoppingsearchtest.png";
+		File targetFile = new File(scrShotPath);
+		Files.copy(srcFile, targetFile);
+
+		if (resultPage.confirmSearch().contains(clothing)) {
+			test.pass("Correct search items appeared for " + clothing + "!").addScreenCaptureFromPath(scrShotPath);
+			;
+		} else {
+			test.fail("Incorrect search items for " + clothing + " appeared.").addScreenCaptureFromPath(scrShotPath);
+			;
+			fail();
+		}
+
+		System.out.println();
+
+	}
+
+	@Test
+	public void testShoppingSiteShop() throws IOException {
+
+		driver.get("http://automationpractice.com/index.php");
+		this.test = report.createTest("testShoppingSiteShop");
 
 		String clothing = new String("Dress");
 		final String EMAIL = "niccage@conair.com";
@@ -147,13 +196,6 @@ public class seleniumtest {
 
 		homePage.search(clothing);
 //		assertTrue(resultPage.confirmSearch().contains(clothing));
-		if (resultPage.confirmSearch().contains(clothing)) {
-			test.pass("Correct search items appeared for " + clothing + "!");
-		} else {
-			test.fail("Incorrect search items for " + clothing + " appeared.");
-			fail();
-		}
-
 		resultPage.selectFirstResult();
 		productPage.addToCart();
 		productPage.proceedToCheckout();
@@ -163,10 +205,17 @@ public class seleniumtest {
 		shippingPage.acceptShipping();
 		paymentPage.payByBankWire();
 		bankWireConfirmationPage.confirmOrder();
+
+		TakesScreenshot scrShot = (TakesScreenshot) driver;
+		File srcFile = scrShot.getScreenshotAs(OutputType.FILE);
+		final String scrShotPath = "test-output/screenshots/shoppingshoptest.png";
+		File targetFile = new File(scrShotPath);
+		Files.copy(srcFile, targetFile);
+
 		if (orderConfirmationPage.getConfirmation().contentEquals("Your order on My Store is complete.")) {
-			test.pass("Order completed!");
+			test.pass("Order completed!").addScreenCaptureFromPath(scrShotPath);
 		} else {
-			test.fail("Order unsuccessful.");
+			test.fail("Order unsuccessful.").addScreenCaptureFromPath(scrShotPath);
 			fail();
 		}
 
@@ -175,35 +224,63 @@ public class seleniumtest {
 	}
 
 	@Test
-	public void ftseTest() {
+	public void ftseTestRiser() throws IOException {
 
 		driver.get("https://www.hl.co.uk/shares/stock-market-summary/ftse-100 ");
-		this.test = report.createTest("testFTSE");
+		this.test = report.createTest("testRiserFTSE");
 
-		String largestRiser = "AVEVA Group plc"; // correct as of 09/06/2020
-		String largestFaller = "Meggitt"; // correct as of 09/06/2020
+		String largestRiser = "London Stock Exchange Group plc"; // correct as of 10/06/2020
 
 		HomePage homePage = PageFactory.initElements(driver, HomePage.class);
 		RisersPage risersPage = PageFactory.initElements(driver, RisersPage.class);
-		FallersPage fallersPage = PageFactory.initElements(driver, FallersPage.class);
 
-		homePage.closeCookies();
+		homePage.closeCookies(driver);
 		homePage.viewRisers();
+
+		TakesScreenshot scrShot = (TakesScreenshot) driver;
+		File srcFile = scrShot.getScreenshotAs(OutputType.FILE);
+		final String scrShotPath = "test-output/screenshots/ftserisertest.png";
+		File targetFile = new File(scrShotPath);
+		Files.copy(srcFile, targetFile);
+
 		if (risersPage.getLargestRiserName().equals(largestRiser)) {
-			test.pass("Matches largest riser " + largestRiser + "! (correct as of 09/06/2020)");
+			test.pass("Matches largest riser " + largestRiser + "! (correct as of 10/06/2020)")
+					.addScreenCaptureFromPath(scrShotPath);
 		} else {
 			test.fail("Doesn't match largest riser " + largestRiser
-					+ " (correct as of 09/06/2020)\nValidation answer could be incorrect at current time, please check.");
+					+ " (correct as of 10/06/2020)\nValidation answer could be incorrect at current time, please check.")
+					.addScreenCaptureFromPath(scrShotPath);
 			fail();
 		}
+	}
 
-		risersPage.returnHome();
+	@Test
+	public void ftseTestFaller() throws IOException {
+
+		driver.get("https://www.hl.co.uk/shares/stock-market-summary/ftse-100 ");
+		this.test = report.createTest("testFallerFTSE");
+
+		String largestFaller = "Rolls Royce Holdings Plc"; // correct as of 10/06/2020
+
+		HomePage homePage = PageFactory.initElements(driver, HomePage.class);
+		FallersPage fallersPage = PageFactory.initElements(driver, FallersPage.class);
+
+		homePage.closeCookies(driver);
 		homePage.viewFallers();
+
+		TakesScreenshot scrShot = (TakesScreenshot) driver;
+		File srcFile = scrShot.getScreenshotAs(OutputType.FILE);
+		final String scrShotPath = "test-output/screenshots/ftsefallertest.png";
+		File targetFile = new File(scrShotPath);
+		Files.copy(srcFile, targetFile);
+
 		if (fallersPage.getLargestFallerName().equals(largestFaller)) {
-			test.pass("Matches largest faller " + largestFaller + "! (correct as of 09/06/2020)");
+			test.pass("Matches largest faller " + largestFaller + "! (correct as of 09/06/2020)")
+					.addScreenCaptureFromPath(scrShotPath);
 		} else {
 			test.fail("Doesn't match largest faller " + largestFaller
-					+ " (correct as of 09/06/2020)\nValidation answer could be incorrect at current time, please check.");
+					+ " (correct as of 09/06/2020)\nValidation answer could be incorrect at current time, please check.")
+					.addScreenCaptureFromPath(scrShotPath);
 			fail();
 		}
 
